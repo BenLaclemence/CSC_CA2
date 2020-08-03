@@ -1,0 +1,125 @@
+﻿<title>UpdateTalent</title>
+<form method="post" enctype="multipart/form-data" asp-action="UpdateFile">
+    <div class="form-group">
+        <div class="col-md-10">
+            <p>Send updated talent's image:</p>
+            <input id="inp" type="file" name="myfile" />
+            <img id="img" height="150">
+        </div>
+        <div class="col-md-10" id="folderHide">
+            <p>aws folder </p>
+            <input type="text" name="subFolder" id="subFolder" value="test1" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-10">
+            <input type="submit" value="Upload" class="btn btn-info" id="UploadButton" />
+        </div>
+    </div>
+</form>
+<div id="errors">
+    <h4>Errors: </h4>
+    <label id="try"></label>
+</div>
+
+<style>
+    body {
+        background-color: bisque;
+    }
+
+    #errors {
+        visibility: hidden;
+    }
+
+    #UploadButton {
+        visibility: hidden;
+    }
+
+    #folderHide {
+        visibility: hidden;
+    }
+</style>
+<script type="text/javascript" src="https://sdk.clarifai.com/js/clarifai-latest.js">
+
+    const Clarifai = require('clarifai');
+
+</script>
+<script>
+    //Initialise App
+    const app = new Clarifai.App({
+
+        apiKey: ''
+    });
+
+
+    var E = document.getElementById("errors");
+    var x = document.getElementById("try");
+    var y = document.getElementById("UploadButton");
+
+
+
+
+
+    function readFile() {
+
+
+
+        if (this.files && this.files[0]) {
+
+
+
+            var FR = new FileReader();
+
+
+
+            FR.addEventListener("load", function (e) {
+                document.getElementById("img").src = e.target.result;
+
+
+
+                console.dir(e.target.result);
+                let image = e.target.result;
+                image = image.replace("data:image/jpeg;base64,", "")
+
+
+
+
+                app.models.predict({ id: '', version: "" }, { base64: image }).then(
+                    function (response) {
+                        var concepts = response['outputs'][0]['data']['concepts']
+                        console.dir(concepts[0].value.toFixed(20));
+                        x.innerHTML = ' This is a NSFW picture.';
+                        y.style.visibility = 'hidden';
+                        E.style.visibility = 'visible';
+                    },
+                    function (err) {
+                        // there was an error
+                        console.dir(err);
+                        x.innerHTML = ' No problems.';
+                        y.style.visibility = 'visible';
+                    }
+                );
+            });
+
+
+
+            FR.readAsDataURL(this.files[0]);
+            console.dir(FR);
+
+
+
+        }
+
+
+
+    }
+
+
+
+    document.getElementById("inp").addEventListener("change", readFile);
+
+
+
+
+
+</script>

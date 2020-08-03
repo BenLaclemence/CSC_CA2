@@ -1,0 +1,172 @@
+﻿<title>Talents</title>
+<div class="card col-12" style="
+    background-color: beige;
+">
+    <div>
+        <a class="btn btn-info" id="AddButton">
+            Add
+        </a>
+        <a class="btn btn-info" id="Comment">
+            Comment
+        </a>
+    </div>
+
+
+
+
+
+    <table cellpadding="0" cellspacing="0"
+           border="0" class="table table-bordered table-hover dt-responsive"
+           id="dataTable">
+        <thead>
+            <tr>
+                <th><h7><b>ID</b></h7></th>
+                <th><h7><b>Talent</b></h7></th>
+
+                <th><h7><b>Edit</b></h7></th>
+                <th><h7><b>Delete</b></h7></th>
+
+
+
+
+            </tr>
+        </thead>
+        <tbody id="dataTableBody"></tbody>
+
+    </table>
+
+
+
+
+</div>
+@section scripts{
+    <style>
+        #bottomNavigationInterfaceContainer,
+        #topNavigationInterfaceContainer {
+            min-height: 70px;
+            max-height: 90px;
+            border: 2px solid black;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 10px;
+            margin-top: 10px;
+        }
+
+        body {
+            background-color: bisque;
+        }
+
+        .card col-12 {
+            background-color: beige;
+        }
+
+        td {
+            border: 3px solid black;
+            padding: 3px;
+            text-align: center;
+        }
+
+        #update {
+            color: green !important;
+            background-color: green !important;
+        }
+
+        #RowNum {
+            width: 100px;
+            text-align: left !important;
+        }
+    </style>
+    <script>
+        /****** JavaScript logic *********/
+        let pageSize = 999;//Fixed the page size to 5 per page
+
+
+
+
+
+        var a = document.getElementById('AddButton'); //or grab it by tagname etc
+        a.href = `CSC_Ben/Account/CreateTalent`;
+        var b = document.getElementById('Comment'); //or grab it by tagname etc
+        b.href = `CSC_Ben/Account/Comment`;
+
+
+
+
+
+
+
+        let NumOfRows = 1;
+        //Call the loadData to begin making GET HTTP request
+        loadData();
+        //which fetches the first 5 record data for page 1
+        function loadData() {
+            //The URL in this ajax method call shall be evaluated as:
+            //'/API/CustomerAccount/GetCustomerAccountsCommentsPageByPage?page_number=1&per_page=5'
+            //The technique used is called "interpolation".
+            //Notice that I did not use + string concatenation.
+            //The HTTP request aims to fetch the first 5 records which can fit into the
+            //page number 1.
+
+            $.ajax({
+                method: 'GET',
+                url:
+                    `http://18.139.166.95/CSC_Ben/API/talents/TalentsData`,
+                dataType: 'json',
+                async: true,
+                cache: false,
+            }).done(function (data) {
+
+                let numberOfRecords = data.records.length;
+                if (numberOfRecords > 0) {
+                    //Call the renderData function and pass the array of objects into the function
+                    renderData(data.records);
+                    //Call the createNavigationButtonsAtTop function
+                    //and pass the max num of pages value into the function
+
+                } else {
+                    $('#dataTableBody').append($(`<tr colspan="3">
+                     <td><h4>No records found.</h4></td></tr>`));
+                }//End of if else to either display rows of data or display 'none found' message
+            });//End of ajax().done()
+        }//End of loadData
+        function renderData(inRecords) {
+            $('#dataTableBody').html('');//Clear the <tbody> element first
+            for (var i = 0; i < inRecords.length; i++) {
+                let record = inRecords[i];//Use the record variable to reference the object in the array
+                //The for-loop code here begins building and inserting the cells<td> and rows<tr>
+                //into the <tbody> element.
+
+                let $cellElement = null;
+                //Start --- Defining the row element to hold
+
+
+
+                let $rowElement = $('<tr></tr>');
+
+                $cellElement = $(`<td id="TalentID";>${record.talentId}</td>`);
+                $rowElement.append($cellElement);
+                $cellElement = $(`<td ;><img src="${record.imagelink}"  width="200" height="250"></td>`);
+                $rowElement.append($cellElement);
+
+
+                $cellElement = $(`<td><a href="CSC_Ben/Account/UpdateTalent?TalentCode=${record.talentCode}" class="btn btn-success">Edit</a></td>`);
+                $rowElement.append($cellElement);
+                $cellElement = $(`<td><a href="CSC_Ben/Account/DeleteTalent?TalentCode=${record.talentCode}" class="btn btn-success">Delete</a></td>`);
+                $rowElement.append($cellElement);
+
+
+
+
+                $('#dataTableBody').append($rowElement);//inserting a new row
+                NumOfRows++;
+                //End-- Defining the row element to hold lesson type information
+
+            }//End of for loop
+
+        }//End of renderData function
+
+    </script>
+}
